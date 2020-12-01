@@ -1,34 +1,22 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.3
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
 import PackageDescription
 
 let package = Package(
-   name: "InputBarAccessoryView",
-   platforms: [.iOS(.v9)],
-   products: [
-       .library(
+    name: "InputBarAccessoryView",
+    platforms: [.iOS(.v11)],
+    products: [
+        .library(
             name: "InputBarAccessoryView",
-            targets: ["InputBarAccessoryView"]),
-       .library(
-            name: "RxExtensions",
-            targets: ["RxExtensions"])
-   ],
-   dependencies: [
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "5.0.0")
-   ],
-   targets: [
-       .target(
-           name: "InputBarAccessoryView",
-           path: "Sources"
-       ),
-       .target(
-           name: "RxExtensions",
-           dependencies: [
-               "InputBarAccessoryView",
-               "RxSwift",
-               "RxCocoa"
-           ],
-           path: "RxInputBarAccessoryView"
-       )
-   ],
-   swiftLanguageVersions: [.v5]
+            targets: ["InputBarAccessoryView"])
+    ],
+    targets: [
+        .target(
+            name: "InputBarAccessoryView",
+            path: "Sources",
+            exclude: ["Supporting/Info.plist"]
+        )
+    ],
+    swiftLanguageVersions: [.v5]
 )

@@ -3,7 +3,7 @@
 //  Example
 //
 //  Created by Nathan Tannar on 8/18/17.
-//  Copyright © 2017-2019 Nathan Tannar. All rights reserved.
+//  Copyright © 2017-2020 Nathan Tannar. All rights reserved.
 //
 
 import UIKit
@@ -11,6 +11,8 @@ import UIKit
 class InputBarStyleSelectionController: UITableViewController {
     
     let styles = InputBarStyle.allCases
+
+    let tabBarExampleIndexPath = IndexPath(row: 6, section: 2)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,41 +21,53 @@ class InputBarStyleSelectionController: UITableViewController {
         tableView.tableFooterView = UIView()
         title = "InputBarAccessoryView"
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "Styles", style: .plain, target: nil, action: nil)
-        navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.barTintColor = UIColor(red: 0/255, green: 122/255, blue: 1, alpha: 1)
-        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        if #available(iOS 13, *) {
+            navigationController?.navigationBar.tintColor = .systemBackground
+            navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.systemBackground]
+        } else {
+            navigationController?.navigationBar.tintColor = .white
+            navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        }
+        navigationController?.navigationBar.barTintColor = .systemBlue
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == 0 {
-            return "InputBarViewController"
-        }
-        return section == 1 ? "InputAccessoryView" : "Subview"
+        return [
+            0: "InputBarViewController",
+            1: "InputAccessoryView",
+            2: "Subview",
+            3: "FAQ/Community Examples"
+        ][section]!
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
+        return 4
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
+        switch section {
+        case 0:     return 1
+        case 1...2: return styles.count
+        case 3:     return 1
+        default:    fatalError("unknown section \(section)")
         }
-        return styles.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
-        if indexPath.section == 0 {
-            cell.textLabel?.text = "README Preview"
-        } else {
-            cell.textLabel?.text = styles[indexPath.row].rawValue
+        switch (indexPath.section, indexPath.row) {
+        case (0, _):        cell.textLabel?.text = "README Preview"
+        case (1...2, _):    cell.textLabel?.text = styles[indexPath.row].rawValue
+        case (3, 0):        cell.textLabel?.text = "Tab bar example (Slack style)"
+        default:            assertionFailure("unrecognized \(indexPath). Are you trying to add an additional example?")
         }
+
         cell.accessoryType = .disclosureIndicator
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
         if indexPath.section == 0 {
             navigationController?.pushViewController(READMEPreviewViewController(), animated: true)
         } else {
@@ -68,6 +82,11 @@ class InputBarStyleSelectionController: UITableViewController {
                     SubviewExampleViewController(style: styles[indexPath.row],
                                                  conversation: convo),
                     animated: true)
+            } else if indexPath.section == 3 {
+                let tabBarController = UITabBarController()
+                let contained = SubviewExampleViewController(style: InputBarStyle.slack, conversation: convo)
+                tabBarController.viewControllers = [contained]
+                navigationController?.pushViewController(tabBarController, animated: true)
             }
         }
     }
